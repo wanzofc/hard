@@ -1,173 +1,264 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gemini AI Chatbot</title>
-
-  <!-- Bootstrap -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css">
-
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Bulma -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma/css/bulma.min.css">
-
-  <!-- Materialize CSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-  <!-- Animate.css -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-
-  <!-- AOS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
-
-  <!-- jQuery -->
-  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
-  <!-- GSAP -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-
-  <!-- SweetAlert2 -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- Lottie Animations -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.9.4/lottie.min.js"></script>
-
-  <!-- Lodash -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
-
-  <!-- Custom Style -->
-  <style>
-    body {
-      background: linear-gradient(to right, #1e3c72, #2a5298);
-      color: white;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    #chat-container {
-      width: 100%;
-      max-width: 700px;
-      height: 90vh;
-      display: flex;
-      flex-direction: column;
-      background: #2c3e50;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-      overflow: hidden;
-    }
-
-    #chat-box {
-      flex-grow: 1;
-      overflow-y: auto;
-      padding: 20px;
-      background: #34495e;
-    }
-
-    #chat-input-container {
-      padding: 10px;
-      background: #2c3e50;
-      display: flex;
-      align-items: center;
-    }
-
-    #chat-input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 5px;
-      border: none;
-      margin-right: 10px;
-    }
-
-    #send-btn {
-      padding: 10px 20px;
-      border-radius: 5px;
-      background-color: #3498db;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    #send-btn:hover {
-      background-color: #2980b9;
-    }
-
-    .bot-message, .user-message {
-      margin: 5px 0;
-      padding: 10px;
-      border-radius: 5px;
-    }
-
-    .bot-message {
-      background: #16a085;
-      color: white;
-      align-self: flex-start;
-    }
-
-    .user-message {
-      background: #e74c3c;
-      color: white;
-      align-self: flex-end;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hard Tower Defense</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; overflow: hidden; }
+        #gameCanvas { border: 1px solid black; display: block; margin: 20px auto; }
+        #ui { text-align: center; margin-top: 10px; display: flex; justify-content: space-around; align-items: flex-start; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+          #toolbar{ padding: 10px 20px; margin: 5px;  }
+       #toolbar button{ padding: 5px 10px; }
+         #towerSelection { display: flex; flex-direction: column; margin-right: 20px; }
+       #towerSelection button { margin-bottom: 5px; padding: 10px; }
+        #towerInfo { margin-left: 20px; width: 200px;  border: 1px solid #ccc; padding: 10px; }
+       #towerInfo h2 { margin-top: 0; }
+       #gameOverPanel { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+               background-color: rgba(255, 255, 255, 0.9);
+               padding: 20px; text-align: center; border: 1px solid #ccc; display: none; }
+         #levelDisplay { margin-top: 10px; font-weight: bold; }
+         #difficultyDisplay { margin-top: 10px; font-style: italic; }
+         #waveDisplay { margin-top: 10px; }
+    </style>
 </head>
 <body>
-  <div id="chat-container" data-aos="fade-up">
-    <div id="chat-box"></div>
-    <div id="chat-input-container">
-      <input id="chat-input" type="text" placeholder="Type your message here..." />
-      <button id="send-btn"><i class="fas fa-paper-plane"></i> Send</button>
+    <nav id="toolbar">
+       <button onclick="resetGame()">Reset Game</button>
+    </nav>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div id="ui">
+          <div id="towerSelection">
+            <!-- Tower selection buttons -->
+           <button onclick="selectTower('basic')"  >Basic Tower</button>
+          <button onclick="selectTower('laser')"  >Laser Tower</button>
+        </div>
+         <div>
+           <button onclick="placeTower()">Place Tower</button>
+             <p>Money: <span id="moneyDisplay">100</span></p>
+            <p>Lives: <span id="livesDisplay">10</span></p>
+           <p id="levelDisplay">Level: 1</p>
+              <p id="difficultyDisplay">Difficulty: easy</p>
+           <p id="waveDisplay">Wave: 1</p>
+       </div>
+         <div id="towerInfo">
+          <!-- Tower information will be placed here -->
+          </div>
     </div>
-  </div>
+      <div id="gameOverPanel" style="display:none;">
+      <h1>Game Over</h1>
+       <p>Score : <span id="gameOverScore">0</span></p>
+       <button onclick="resetGame()">Play Again</button>
+    </div>
 
-  <script>
-    AOS.init(); // Initialize AOS library
+    <script>
+       const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        let gameData;
+        let placingTower = false;
+        let selectedTower = null;
+       let explosionEffects = [];
+           async function fetchGameData() {
+            try {
+                const response = await fetch('/gameData');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                  gameData = await response.json();
+                 if(gameData.lives <= 0 && document.getElementById('gameOverPanel').style.display === 'none' ){
+                         document.getElementById('gameOverScore').textContent = gameData.level;
+                      document.getElementById('gameOverPanel').style.display = 'block';
+                }
+                   draw();
 
-    const chatBox = document.getElementById("chat-box");
-    const chatInput = document.getElementById("chat-input");
-    const sendBtn = document.getElementById("send-btn");
+            } catch (error) {
+                console.error('Failed to fetch game data:', error);
+            }
+        }
+         function resetGame() {
+             fetch('/resetGame', { method: 'POST' })
+                .then(response => {
+                   if (response.ok) {
+                     document.getElementById('gameOverPanel').style.display = 'none';
+                        explosionEffects = [];
+                   }
+                  else {
+                       console.log("failed reset")
+                }
+                  })
+                .catch(error => console.error('Error resetting game:', error));
+             }
 
-    function appendMessage(message, sender) {
-      const div = document.createElement("div");
-      div.className = sender === "user" ? "user-message" : "bot-message";
-      div.textContent = message;
-      chatBox.appendChild(div);
-      chatBox.scrollTop = chatBox.scrollHeight;
+        function draw() {
+            if (!gameData) return;
+
+
+            // Clear canvas
+             ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+              // Draw path
+             ctx.beginPath();
+            ctx.moveTo(gameData.path[0].x, gameData.path[0].y);
+            for(let i = 1; i < gameData.path.length; i++){
+                ctx.lineTo(gameData.path[i].x, gameData.path[i].y)
+            }
+             ctx.strokeStyle = 'grey';
+              ctx.lineWidth = 10;
+            ctx.stroke();
+           
+           // draw grid
+          for(let x = 0; x < canvas.width; x+= gameData.cellSize){
+             ctx.beginPath();
+             ctx.moveTo(x, 0)
+             ctx.lineTo(x, canvas.height)
+             ctx.strokeStyle = 'lightgrey'
+             ctx.stroke();
+
+           }
+         for(let y = 0; y < canvas.height; y+= gameData.cellSize){
+             ctx.beginPath();
+             ctx.moveTo(0, y)
+             ctx.lineTo(canvas.width, y)
+             ctx.strokeStyle = 'lightgrey'
+             ctx.stroke();
+
+           }
+
+
+
+              // Draw enemies
+             gameData.enemies.forEach(enemy => {
+                   drawEnemy(enemy)
+            });
+
+
+              // draw towers
+            gameData.towers.forEach(tower => {
+                drawTower(tower)
+             });
+               // Draw explosions
+                for (let i = explosionEffects.length - 1; i >= 0; i--) {
+                       const explosion = explosionEffects[i];
+                       ctx.fillStyle = 'red';
+                       ctx.beginPath();
+                       ctx.arc(explosion.x, explosion.y, explosion.radius, 0, Math.PI * 2);
+                       ctx.fill();
+                       explosion.radius -= 2;
+                    if (explosion.radius <= 0) {
+                         explosionEffects.splice(i, 1); // Remove the explosion if the radius is zero
+                     }
+                    }
+
+
+             // Update UI
+                document.getElementById('moneyDisplay').textContent = gameData.money;
+               document.getElementById('livesDisplay').textContent = gameData.lives;
+                document.getElementById('levelDisplay').textContent = `Level: ${gameData.level}`;
+                document.getElementById('difficultyDisplay').textContent = `Difficulty: ${gameData.difficulty}`;
+                   document.getElementById('waveDisplay').textContent = `Wave: ${gameData.wave}`;
+         document.getElementById('toolbar').innerHTML = `<button onclick="resetGame()">Reset Game</button>`;
+        }
+        function drawEnemy(enemy){
+                 // Body
+             ctx.fillStyle = enemy.color;
+             ctx.fillRect(enemy.x - enemy.size/2, enemy.y-enemy.height/2, enemy.size, enemy.height)
+              // Outline
+               ctx.strokeStyle = 'black';
+                ctx.lineWidth = 2;
+               ctx.strokeRect(enemy.x - enemy.size/2, enemy.y-enemy.height/2, enemy.size, enemy.height);
+
+
+                 // healthbar
+              ctx.fillStyle = 'black';
+              ctx.fillRect(enemy.x-enemy.size/2, enemy.y - enemy.height/2-10, enemy.size * (enemy.hp / enemy.maxHp), 5);
+        }
+        function drawTower(tower){
+               // Draw base
+                    ctx.fillStyle = tower.color;
+                     ctx.beginPath();
+                    ctx.arc(tower.x, tower.y, tower.size / 2, 0, Math.PI * 2);
+                   ctx.fill();
+                   ctx.strokeStyle = 'black';
+                     ctx.lineWidth = 2;
+                    ctx.stroke();
+
+
+                // Draw turret/gun
+                ctx.save(); // Save current context
+                 ctx.translate(tower.x, tower.y); // Move context to the center of the tower
+                  ctx.rotate(tower.rotation)
+                 ctx.fillStyle = 'darkgray'
+                  ctx.fillRect(0 -tower.gunWidth/2, 0 -tower.gunWidth/2, tower.gunLength, tower.gunWidth);
+                    ctx.restore(); // Restore context
+
+                     // Draw range
+                      ctx.beginPath();
+                      ctx.arc(tower.x, tower.y, tower.range, 0, Math.PI * 2)
+                       ctx.strokeStyle = "rgba(0, 255, 0, 0.2)"
+                        ctx.stroke();
+        }
+    function selectTower(towerType) {
+        selectedTower = towerType;
+        //  update tower info
+           const towerInfoDiv = document.getElementById('towerInfo');
+        towerInfoDiv.innerHTML = `
+          <h2>${towerType === 'basic' ? 'Basic Tower' : 'Laser Tower'}</h2>
+          <p>Damage: ${towerType === 'basic' ? 1 : 2}</p>
+          <p>Range: ${towerType === 'basic' ? 120 : 150}</p>
+           <p>Cost: ${towerType === 'basic' ? 50 : 70}</p>
+        `;
     }
 
-    sendBtn.addEventListener("click", async () => {
-      const userInput = chatInput.value.trim();
-      if (!userInput) return;
+        function placeTower() {
+           placingTower = true;
+             if(!selectedTower){
+                alert("Please select tower");
+                placingTower = false;
+                return;
+              }
+        }
 
-      appendMessage(userInput, "user");
-      chatInput.value = "";
+          canvas.addEventListener('click', async function(event) {
+            if(!placingTower || !gameData) return
 
-      try {
-        const response = await fetch("/api/chat", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ text: userInput }),
-        });
+             const rect = canvas.getBoundingClientRect();
+             const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            const towerX = Math.floor(x / gameData.cellSize) * gameData.cellSize + gameData.cellSize/2
+             const towerY = Math.floor(y / gameData.cellSize) * gameData.cellSize + gameData.cellSize/2
 
-        const data = await response.json();
-        appendMessage(data.reply || "Sorry, I couldn't process that.", "bot");
-      } catch (error) {
-        appendMessage("Error: Unable to connect to server.", "bot");
-      }
-    });
-  </script>
+             try {
+                     const response = await fetch('/placeTower', {
+                           method: 'POST',
+                         headers: {
+                             'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ x: towerX, y: towerY, towerType: selectedTower }),
+                   });
+                    if (!response.ok) {
+                         const error = await response.json();
+                           alert(`Error placing tower: ${error.message}`)
+                            return;
+                      }
+                     placingTower = false;
+
+                 } catch (error) {
+                   console.error('Error placing tower:', error);
+                }
+         });
+
+       // Fetch data every frame
+       function gameLoop() {
+          fetchGameData();
+         requestAnimationFrame(gameLoop)
+        }
+       gameLoop()
+       
+        function addExplosion(x, y) {
+         explosionEffects.push({ x: x, y: y, radius: 10 });
+        }
+    </script>
 </body>
 </html>
